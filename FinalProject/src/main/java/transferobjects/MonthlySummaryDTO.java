@@ -13,7 +13,7 @@ public class MonthlySummaryDTO {
   private int userId;
     private double totalCredits;
     private double totalDebits;
-    private double amountDue;
+   
 
     public MonthlySummaryDTO() {}
 
@@ -21,7 +21,7 @@ public class MonthlySummaryDTO {
         this.userId = userId;
         this.totalCredits = totalCredits;
         this.totalDebits = totalDebits;
-        this.amountDue = totalDebits - totalCredits;
+       
     }
 
     public int getUserId() {
@@ -49,8 +49,7 @@ public class MonthlySummaryDTO {
     }
 
     public double getAmountDue() {
-        return amountDue;
+        return totalDebits - totalCredits;
     }
-
     
 }
