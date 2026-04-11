@@ -1,9 +1,12 @@
 package data.dao;
-
-import business.model.AccountTransaction;
 import java.util.List;
+import transferobjects.AccountTransactionDTO;
+/**
+ *
+ * @author biyababu
+ */
+public interface TransactionDAO {
+ void addTransaction(AccountTransactionDTO transaction) throws Exception;
 
-public interface TransactionDAO extends GenericDAO<AccountTransaction, Integer> {
-    List<AccountTransaction> findByUserId(int userId) throws Exception;
-    List<AccountTransaction> findByUserIdAndMonth(int userId, int year, int month) throws Exception;
+    List<AccountTransactionDTO> getTransactionsByUser(int userId) throws Exception;   
 }
