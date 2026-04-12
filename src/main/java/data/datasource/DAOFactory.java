@@ -5,7 +5,7 @@ public final class DAOFactory {
     private DAOFactory() {}
 
     // Switch to true to use real MySQL, false for Mock
-    private static final boolean USE_MYSQL = false;
+    private static final boolean USE_MYSQL = true;
 
     public static data.dao.UserDAO getUserDAO() {
         return new data.daoimpl.UserDAO(); // MySQL version pending
