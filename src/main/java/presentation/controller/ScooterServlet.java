@@ -71,6 +71,7 @@ public class ScooterServlet extends BaseServlet {
                 gpsLog.setNearestStationId(nearestStationId);
                 gpsLog.setInTransit(false); // returned = not in transit
                 DAOFactory.getTrackingDAO().insert(gpsLog);
+                scooterService.updateScooterStation(scooterId, nearestStationId);
 
                 // 
                 userDebit = Math.round(userDebit);

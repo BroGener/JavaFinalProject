@@ -7,11 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <title>GPS Tracking</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    </style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <%@ include file="/common/navbar.jsp" %>

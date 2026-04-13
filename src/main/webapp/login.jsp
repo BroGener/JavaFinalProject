@@ -3,27 +3,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Final Project Mock App</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        nav a { margin-right: 12px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        .card { border: 1px solid #ddd; padding: 16px; margin: 12px 0; }
-        .muted { color: #666; }
-        input, select { padding: 6px; margin: 4px 0; width: 280px; }
-    </style>
+    <title>Login</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<%@ include file="/common/navbar.jsp" %>
-<hr/>
 <h1>Login</h1>
-<p class="muted">Use user@test.com / 1234, maintainer@test.com / 1234, or sponsor@test.com / 1234.</p>
-<p>${message}</p>
+<% if (request.getAttribute("message") != null) { %>
+    <p style="color:red;"><%= request.getAttribute("message") %></p>
+<% } %>
 <form method="post" action="${pageContext.request.contextPath}/login">
-    <div><input type="email" name="email" placeholder="Email"/></div>
-    <div><input type="password" name="password" placeholder="Password"/></div>
+    <input type="email" name="email" placeholder="Email" required/>
+    <input type="password" name="password" placeholder="Password" required/>
     <button type="submit">Login</button>
 </form>
+<p>Don't have an account? <a href="${pageContext.request.contextPath}/register">Register</a></p>
 </body>
 </html>

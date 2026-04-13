@@ -8,12 +8,23 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MySQL implementation of {@link data.dao.ReportDAO}.
+ * Executes SQL queries against the live database to generate user and station reports.
+ */
 public class MySQLReportDAO implements data.dao.ReportDAO {
 
+    /**
+     * Queries all charging stations and aggregates scooter availability and
+     * low-battery counts via a LEFT JOIN with the scooters table.
+     *
+     * @return a list of {@link StationReport}s for all charging stations
+     */
     @Override
     public List<StationReport> getStationReports() {
         List<StationReport> list = new ArrayList<>();
-        try (Connection con = DataSource.getConnection(); PreparedStatement ps = con.prepareStatement(
+        try (Connection con = DataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(
                 "SELECT cs.station_id, cs.name, " +
                 "COUNT(s.scooter_id) AS total, " +
                 "SUM(CASE WHEN s.status='AVAILABLE' THEN 1 ELSE 0 END) AS available, " +
@@ -31,21 +42,35 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
                 r.setLowBatteryScooters(rs.getInt("low_battery"));
                 list.add(r);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
     }
 
+    /**
+     * Builds a monthly financial summary for a user by separately querying
+     * DEBIT and CREDIT totals from {@code account_transactions}.
+     * <p>
+     * <b>Note:</b> {@code totalDistanceKm} is repurposed to store the CREDIT total,
+     * and {@code tripCount} reflects the combined DEBIT + CREDIT transaction count.
+     * </p>
+     *
+     * @param userId the ID of the user
+     * @param year   the calendar year (e.g., {@code 2024})
+     * @param month  the calendar month ({@code 1}–{@code 12})
+     * @return a {@link MonthlySummary} populated with aggregated transaction data
+     * @throws Exception if a data access error occurs
+     */
     @Override
     public MonthlySummary getMonthlySummary(int userId, int year, int month) throws Exception {
-        // 查 DEBIT 总额（用于 USER）
+        // Query total DEBIT amount and count (used for regular users)
         String debitSql = "SELECT COUNT(*) AS cnt, SUM(amount) AS total " +
                 "FROM account_transactions " +
                 "WHERE user_id=? AND transaction_type='DEBIT' " +
                 "AND YEAR(created_at)=? AND MONTH(created_at)=?";
-        // 查 CREDIT 总额（用于 SPONSOR/MAINTAINER）
+
+        // Query total CREDIT amount and count (used for sponsors/maintainers)
         String creditSql = "SELECT COUNT(*) AS cnt, SUM(amount) AS total " +
                 "FROM account_transactions " +
                 "WHERE user_id=? AND transaction_type='CREDIT' " +
@@ -54,8 +79,8 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
         double debitTotal = 0, creditTotal = 0;
         int debitCount = 0, creditCount = 0;
 
-        try (Connection con = DataSource.getConnection(); PreparedStatement ps = con.prepareStatement(
-                debitSql)) {
+        try (Connection con = DataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(debitSql)) {
             ps.setInt(1, userId);
             ps.setInt(2, year);
             ps.setInt(3, month);
@@ -65,8 +90,9 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
                 debitTotal = rs.getDouble("total");
             }
         }
-        try (Connection con = DataSource.getConnection(); PreparedStatement ps = con.prepareStatement(
-                creditSql)) {
+
+        try (Connection con = DataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(creditSql)) {
             ps.setInt(1, userId);
             ps.setInt(2, year);
             ps.setInt(3, month);
@@ -77,36 +103,40 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
             }
         }
 
-        // tripCount 存 debit 次数，totalAmount 存两者之和供 JSP 判断
-        // 用 totalDistanceKm 存 creditTotal（复用字段）
+        // tripCount = total transaction count (debit + credit)
+        // totalAmount = debit total; totalDistanceKm = credit total (field repurposed)
         MonthlySummary s = new MonthlySummary();
         s.setUserId(userId);
         s.setYear(year);
         s.setMonth(month);
         s.setTripCount(debitCount + creditCount);
         s.setTotalAmount(debitTotal);
-        s.setTotalDistanceKm(creditTotal); // 借用这个字段存 credit 总额
+        s.setTotalDistanceKm(creditTotal); // repurposed to store credit total
         return s;
     }
 
+    /**
+     * Retrieves all transaction records for a user in the given month,
+     * ordered by most recent first. Returns both DEBIT and CREDIT entries.
+     *
+     * @param userId the ID of the user
+     * @param year   the calendar year (e.g., {@code 2024})
+     * @param month  the calendar month ({@code 1}–{@code 12})
+     * @return a list of {@link ActivityCredit}s ordered by {@code created_at} descending
+     * @throws Exception if a data access error occurs
+     */
     @Override
     public List<ActivityCredit> getCreditsByActivity(int userId, int year, int month) throws Exception {
         List<ActivityCredit> list = new ArrayList<>();
-       // getMonthlySummary 去掉 paid=false 条件，显示全部
-String debitSql = "SELECT COUNT(*) AS cnt, SUM(amount) AS total " +
-                  "FROM account_transactions " +
-                  "WHERE user_id=? AND transaction_type='DEBIT' " +
-                  "AND YEAR(created_at)=? AND MONTH(created_at)=?";
-String sql = "SELECT activity_name, amount, transaction_type, paid, created_at " +
-             "FROM account_transactions " +
-             "WHERE user_id=? AND YEAR(created_at)=? AND MONTH(created_at)=? " +
-             "ORDER BY created_at DESC";
 
+        // Retrieve all transactions for the user in the given month (both DEBIT and CREDIT)
+        String sql = "SELECT activity_name, amount, transaction_type, paid, created_at " +
+                     "FROM account_transactions " +
+                     "WHERE user_id=? AND YEAR(created_at)=? AND MONTH(created_at)=? " +
+                     "ORDER BY created_at DESC";
 
-
-
-        try (Connection con = DataSource.getConnection(); PreparedStatement ps = con.prepareStatement(
-                sql)) {
+        try (Connection con = DataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, year);
             ps.setInt(3, month);
@@ -120,8 +150,7 @@ String sql = "SELECT activity_name, amount, transaction_type, paid, created_at "
                 c.setPaid(rs.getBoolean("paid"));
                 list.add(c);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;

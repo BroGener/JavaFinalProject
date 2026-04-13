@@ -6,13 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>My Scooters</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 24px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        a.btn { padding: 4px 10px; background: #4CAF50; color: white; 
-                text-decoration: none; border-radius: 4px; }
-    </style>
+   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <%@ include file="/common/navbar.jsp" %>

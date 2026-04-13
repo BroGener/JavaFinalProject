@@ -1,0 +1,116 @@
+CREATE DATABASE cesc;
+USE cesc;
+
+-- user
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    user_type ENUM('USER', 'SPONSOR', 'MAINTAINER') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- charging station
+CREATE TABLE charging_stations (
+    station_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    capacity INT NOT NULL,
+    available_slots INT NOT NULL
+);
+
+-- scooters
+CREATE TABLE scooters (
+    scooter_id INT AUTO_INCREMENT PRIMARY KEY,
+    sponsor_user_id INT,
+    vehicle_number VARCHAR(50) UNIQUE NOT NULL,
+    make VARCHAR(50),
+    model VARCHAR(50),
+    color VARCHAR(30),
+    battery_capacity INT,
+    current_charge_level INT,
+    status ENUM('AVAILABLE','IN_USE','CHARGING','MAINTENANCE') DEFAULT 'AVAILABLE',
+    current_station_id INT,
+    FOREIGN KEY (sponsor_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (current_station_id) REFERENCES charging_stations(station_id)
+);
+
+INSERT INTO charging_stations (name, location, capacity, available_slots) 
+VALUES ('Main Campus', 'Building A', 12, 4);
+
+INSERT INTO users (name, email, password, user_type) 
+VALUES ('Test User', 'test@test.com', 'password123', 'USER');
+
+INSERT INTO scooters (sponsor_user_id, vehicle_number, make, model, color, battery_capacity, current_charge_level, status, current_station_id)
+VALUES (1, 'SC-001', 'Segway', 'Ninebot', 'Black', 100, 82, 'AVAILABLE', 1);
+
+
+
+CREATE TABLE maintenance_alerts (
+    alert_id INT AUTO_INCREMENT PRIMARY KEY,
+    scooter_id INT,
+    alert_type VARCHAR(50),
+    notes VARCHAR(255),
+    status ENUM('OPEN','RESOLVED') DEFAULT 'OPEN',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (scooter_id) REFERENCES scooters(scooter_id)
+);
+
+CREATE TABLE maintenance_tasks (
+    task_id INT AUTO_INCREMENT PRIMARY KEY,
+    scooter_id INT,
+    maintainer_user_id INT,
+    description VARCHAR(255),
+    status ENUM('PENDING','COMPLETED') DEFAULT 'PENDING',
+    due_date DATE,
+    FOREIGN KEY (scooter_id) REFERENCES scooters(scooter_id),
+    FOREIGN KEY (maintainer_user_id) REFERENCES users(user_id)
+);
+
+INSERT INTO maintenance_alerts (scooter_id, alert_type, notes, status)
+VALUES (1, 'BATTERY', 'Battery level critically low', 'OPEN'),
+       (1, 'WEAR', 'Brake wear detected', 'OPEN');
+
+INSERT INTO maintenance_tasks (scooter_id, maintainer_user_id, description, status, due_date)
+VALUES (1, 1, 'Replace brake pads', 'PENDING', '2026-04-20'),
+       (1, 1, 'Recharge battery', 'PENDING', '2026-04-15');
+
+
+CREATE TABLE account_transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    activity_name VARCHAR(50),
+    amount DOUBLE,
+    transaction_type ENUM('CREDIT','DEBIT') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+INSERT INTO account_transactions (user_id, activity_name, amount, transaction_type)
+VALUES 
+(1, 'SCOOTER_USE', 5.50, 'DEBIT'),
+(1, 'SCOOTER_USE', 3.20, 'DEBIT'),
+(1, 'MAINTENANCE', 10.00, 'CREDIT'),
+(2, 'SCOOTER_USE', 8.00, 'DEBIT');
+INSERT INTO users (name, email, password, user_type)
+VALUES ('Test Sponsor', 'sponsor@test.com', '1234', 'SPONSOR');
+CREATE TABLE gps_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    scooter_id INT,
+    latitude DOUBLE,
+    longitude DOUBLE,
+    nearest_station_id INT,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (scooter_id) REFERENCES scooters(scooter_id),
+    FOREIGN KEY (nearest_station_id) REFERENCES charging_stations(station_id)
+);
+
+INSERT INTO charging_stations (name, location, capacity, available_slots) VALUES
+('A Building', 'lat:45.3494,lng:-75.7554', 12, 4),
+('C Building', 'lat:45.3483,lng:-75.7537', 8, 3),
+('E Building', 'lat:45.3476,lng:-75.7521', 10, 5),
+('P Building', 'lat:45.3502,lng:-75.7568', 6, 2),
+('T Building', 'lat:45.3468,lng:-75.7548', 8, 3);
+ALTER TABLE gps_logs ADD COLUMN in_transit BOOLEAN DEFAULT FALSE;
+ALTER TABLE account_transactions ADD COLUMN paid BOOLEAN DEFAULT FALSE;
