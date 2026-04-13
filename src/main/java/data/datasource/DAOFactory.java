@@ -13,7 +13,7 @@ public final class DAOFactory {
     public static data.dao.ScooterDAO getScooterDAO() {
         return USE_MYSQL ? new data.daoimpl.MySQLScooterDAO() : new data.daoimpl.ScooterDAO();
     }
-    public static data.dao.MaintenanceDAO getMaintenanceDAO() { return new data.daoimpl.MaintenanceDAO(); }
+    public static data.dao.MaintenanceDAO getMaintenanceDAO() { return USE_MYSQL ? new data.daoimpl.MySQLMaintenanceDAO() : new data.daoimpl.MaintenanceDAO(); }
     public static data.dao.ReportDAO getReportDAO() { return new data.daoimpl.ReportDAO(); }
     public static data.dao.StationDAO getStationDAO() {
     return USE_MYSQL ? new data.daoimpl.MySQLStationDAO() : new data.daoimpl.StationDAO();
