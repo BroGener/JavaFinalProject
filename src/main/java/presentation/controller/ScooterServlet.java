@@ -16,6 +16,7 @@ import business.strategy.UserDebitStrategy;
 import business.strategy.SponsorCreditStrategy;
 import business.observer.ScooterMonitor;
 import business.observer.BatteryObserver;
+import business.observer.WearObserver;
 
 @WebServlet("/scooters")
 public class ScooterServlet extends BaseServlet {
@@ -98,6 +99,7 @@ public class ScooterServlet extends BaseServlet {
                 //  Observer
                 ScooterMonitor monitor = new ScooterMonitor();
                 monitor.addObserver(new BatteryObserver());
+                monitor.addObserver(new WearObserver());
                 int chargeLevel = scooterOpt.isPresent()
                         ? scooterOpt.get().getCurrentChargeLevel() : 100;
                 monitor.notifyObservers(scooterId, chargeLevel,
