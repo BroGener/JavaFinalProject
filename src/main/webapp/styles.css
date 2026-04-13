@@ -1,0 +1,127 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 12 Apr 2026, 8:31:06 am
+    Author     : isabe
+*/
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===== BODY ===== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+/* ===== HEADER ===== */
+.header {
+    background-color: #007BFF;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+/* ===== CARD ===== */
+.card {
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ===== FORM ===== */
+form {
+    margin-top: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* ===== BUTTON ===== */
+button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #007BFF;
+    color: white;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* ===== LINKS ===== */
+a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ===== ERROR ===== */
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+    background: #222;
+    padding: 10px;
+}
+
+.navbar a {
+    color: white;
+    margin: 0 10px;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: 40px;
+    text-align: center;
+    color: gray;
+}

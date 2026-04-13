@@ -6,6 +6,8 @@ import data.datasource.DAOFactory;
 import java.util.Optional;
 
 public class UserServiceImpl implements UserService {
+    @Override
     public Optional<User> getUserById(int userId) throws Exception { return DAOFactory.getUserDAO().findById(userId); }
+    @Override
     public Optional<User> getUserByEmail(String email) throws Exception { return DAOFactory.getUserDAO().findByEmail(email); }
 }
