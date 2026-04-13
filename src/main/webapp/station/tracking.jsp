@@ -14,6 +14,11 @@
         input, select { padding: 6px; margin: 4px 0; width: 280px; }
     </style>
 </head>
+<script>
+    setTimeout(function() {
+        location.reload();
+    }, 15000); // refresh every 3 seconds
+</script>
 <body>
 <nav>
     <a href="${pageContext.request.contextPath}/login">Login</a>
