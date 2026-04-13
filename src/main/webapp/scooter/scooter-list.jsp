@@ -45,6 +45,8 @@
         <td><%= scooter.getCurrentChargeLevel() %>%</td>
     </tr>
     <% } %>
+    
 </table>
+    <a href="${pageContext.request.contextPath}/scooters?action=add">+ Register New Scooter</a>
 </body>
 </html>
