@@ -53,8 +53,14 @@
             <% double creditTotal = summary != null ? summary.getTotalDistanceKm() : 0;%>
             <% if ("USER".equals(userRole)) {%>
             <p><strong>Trips:</strong> <%= tripCount%></p>
-            <p><strong>Total Time:</strong> <%= String.format("%.1f", totalMinutes)%> Second</p>
+            <p><strong>Total Time:</strong> <%= String.format("%.1f", totalMinutes)%> min</p>
             <p><strong>Total Debit:</strong> $<%= String.format("%.2f", totalAmount)%></p>
+            <% if (totalAmount > 0) { %>
+            <form method="post" action="${pageContext.request.contextPath}/monthly-statement">
+                <input type="submit" value="Pay Now" 
+                       style="padding:8px 20px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer;"/>
+            </form>
+            <% } %>
             <% }
             else if ("SPONSOR".equals(userRole)) {%>
             <p><strong>Total Earnings:</strong> $<%= String.format("%.2f", creditTotal)%></p>
@@ -63,20 +69,46 @@
             <p><strong>Tasks Completed:</strong> <%= tripCount%></p>
             <p><strong>Total Credits:</strong> $<%= String.format("%.2f", creditTotal)%></p>
             <% } %>
+            <%
+                boolean hasUnpaid = false;
+                if (credits != null) {
+                    for (ActivityCredit c
+                            : credits) {
+                        if ("DEBIT".equals(c.getTransactionType()) && !c.isPaid()) {
+                            hasUnpaid = true;
+                            break;
+                        }
+                    }
+                }
+                if ("USER".equals(userRole) && hasUnpaid) {%>
+            <form method="post" action="${pageContext.request.contextPath}/monthly-statement">
+                <input type="submit" value="Pay All ($<%= String.format("%.2f", totalAmount)%>)"
+                       style="padding:8px 20px; background:#4CAF50; color:white; border:none; border-radius:4px; cursor:pointer;"/>
+            </form>
+            <% } %>
         </div>
         <h2>Activity Breakdown</h2>
         <table>
-            <tr><th>Activity</th><th>Type</th><th>Amount</th><th>Time</th></tr>
+            <tr><th>Activity</th><th>Type</th><th>Amount</th><th>Status</th><th>Time</th></tr>
                     <% if (credits != null) {
-            for (ActivityCredit credit
-                    : credits) {%>
+                            for (ActivityCredit credit
+                                    : credits) {%>
             <tr>
                 <td><%= credit.getActivityName()%></td>
                 <td><%= credit.getTransactionType()%></td>
-                <td>$<%= String.format("%.2f", credit.getAmount())%></td>
+                <td>$<%= String.format("%.2f", credit.getAmount())%></td>   
+                <td><% if ("DEBIT".equals(credit.getTransactionType())) {%>
+                <%= credit.isPaid() ? "✅ Paid" : "❌ Unpaid"%>
+                <% }
+                else { %>
+                —
+                <% }%>
+                </td>
                 <td><%= credit.getCreatedAt()%></td>
+                
+
             </tr>
             <% }
-        }%>
+                }%>
         </table>
 </html>

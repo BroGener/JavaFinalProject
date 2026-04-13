@@ -92,10 +92,19 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
     @Override
     public List<ActivityCredit> getCreditsByActivity(int userId, int year, int month) throws Exception {
         List<ActivityCredit> list = new ArrayList<>();
-        String sql = "SELECT activity_name, amount, transaction_type, created_at " +
-                "FROM account_transactions " +
-                "WHERE user_id=? AND YEAR(created_at)=? AND MONTH(created_at)=? " +
-                "ORDER BY created_at DESC";
+       // getMonthlySummary 去掉 paid=false 条件，显示全部
+String debitSql = "SELECT COUNT(*) AS cnt, SUM(amount) AS total " +
+                  "FROM account_transactions " +
+                  "WHERE user_id=? AND transaction_type='DEBIT' " +
+                  "AND YEAR(created_at)=? AND MONTH(created_at)=?";
+String sql = "SELECT activity_name, amount, transaction_type, paid, created_at " +
+             "FROM account_transactions " +
+             "WHERE user_id=? AND YEAR(created_at)=? AND MONTH(created_at)=? " +
+             "ORDER BY created_at DESC";
+
+
+
+
         try (Connection con = DataSource.getConnection(); PreparedStatement ps = con.prepareStatement(
                 sql)) {
             ps.setInt(1, userId);
@@ -108,6 +117,7 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
                 c.setAmount(rs.getDouble("amount"));
                 c.setTransactionType(rs.getString("transaction_type"));
                 c.setCreatedAt(rs.getTimestamp("created_at"));
+                c.setPaid(rs.getBoolean("paid"));
                 list.add(c);
             }
         }

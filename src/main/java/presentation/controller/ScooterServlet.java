@@ -17,6 +17,10 @@ import business.strategy.SponsorCreditStrategy;
 import business.observer.ScooterMonitor;
 import business.observer.BatteryObserver;
 import business.observer.WearObserver;
+import business.model.GPSLog;
+import business.model.ChargingStation;
+import java.util.List;
+import data.datasource.DAOFactory;
 
 @WebServlet("/scooters")
 public class ScooterServlet extends BaseServlet {
@@ -35,31 +39,41 @@ public class ScooterServlet extends BaseServlet {
             else if ("unlock".equals(action)) {
                 int scooterId = Integer.parseInt(request.getParameter(
                         "scooterId"));
-                //  IN_USE
                 scooterService.updateScooterStatus(scooterId, "IN_USE");
-                //  session
                 request.getSession().setAttribute("rideStart_" + scooterId,
                         System.currentTimeMillis());
-                response.sendRedirect(request.getContextPath() + "/scooters");
-
+                // 改成跳转到骑行页面而不是 scooter 列表
+                response.sendRedirect(
+                        request.getContextPath() + "/scooter/riding.jsp?scooterId=" + scooterId);
             }
             else if ("return".equals(action)) {
                 int scooterId = Integer.parseInt(request.getParameter(
                         "scooterId"));
+                double[] coords = util.GPSUtils.randomLocation();
 
                 // 
                 Long startTime = (Long) request.getSession().getAttribute(
                         "rideStart_" + scooterId);
                 double minutesUsed = startTime != null
                         ? (System.currentTimeMillis() - startTime) : 5.0;
+                List<ChargingStation> stations = new business.service.impl.StationServiceImpl().getAllStations();
+                int nearestStationId = util.GPSUtils.findNearestStation(
+                        coords[0], coords[1], stations);
 
                 // Strategy 
                 AccountContext ctx = new AccountContext(0, minutesUsed, 0);
                 double userDebit = new UserDebitStrategy().calculate(ctx);
                 double sponsorCredit = new SponsorCreditStrategy().calculate(ctx);
+                GPSLog gpsLog = new GPSLog();
+                gpsLog.setScooterId(scooterId);
+                gpsLog.setLatitude(coords[0]);
+                gpsLog.setLongitude(coords[1]);
+                gpsLog.setNearestStationId(nearestStationId);
+                gpsLog.setInTransit(false); // returned = not in transit
+                DAOFactory.getTrackingDAO().insert(gpsLog);
 
                 // 
-                userDebit = Math.round(userDebit ) ;
+                userDebit = Math.round(userDebit);
 
                 // userId
                 Integer userId = (Integer) request.getSession().getAttribute(

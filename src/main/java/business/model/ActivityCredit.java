@@ -8,6 +8,7 @@ public class ActivityCredit implements Serializable {
     private double amount;
     private String transactionType;
     private java.sql.Timestamp createdAt;
+    private boolean paid;
 
     public ActivityCredit() {
     }
@@ -47,5 +48,13 @@ public class ActivityCredit implements Serializable {
 
     public void setCreatedAt(java.sql.Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
     }
 }
