@@ -8,7 +8,7 @@ public final class DAOFactory {
     private static final boolean USE_MYSQL = true;
 
     public static data.dao.UserDAO getUserDAO() {
-        return new data.daoimpl.UserDAO(); // MySQL version pending
+        return USE_MYSQL ? new data.daoimpl.MySQLUserDAO() : new data.daoimpl.UserDAO();
     }
     public static data.dao.ScooterDAO getScooterDAO() {
         return USE_MYSQL ? new data.daoimpl.MySQLScooterDAO() : new data.daoimpl.ScooterDAO();
