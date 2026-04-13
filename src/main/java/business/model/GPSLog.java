@@ -11,6 +11,7 @@ public class GPSLog implements Serializable {
     private boolean inTransit;
     private Integer nearestStationId;
     private LocalDateTime recordedAt;
+    private String history;
 
     public GPSLog() {}
 
@@ -22,6 +23,7 @@ public class GPSLog implements Serializable {
         this.inTransit = inTransit;
         this.nearestStationId = nearestStationId;
         this.recordedAt = recordedAt;
+        this.history = "history";
     }
 
     public Integer getLogId() { return logId; }
@@ -38,4 +40,9 @@ public class GPSLog implements Serializable {
     public void setNearestStationId(Integer nearestStationId) { this.nearestStationId = nearestStationId; }
     public LocalDateTime getRecordedAt() { return recordedAt; }
     public void setRecordedAt(LocalDateTime recordedAt) { this.recordedAt = recordedAt; }
+
+    public String getHistory() {
+        return history;
+    }
+    
 }

@@ -8,4 +8,5 @@ public interface TrackingService {
     int saveLocation(GPSLog log) throws Exception;
     Optional<GPSLog> getLatestLocation(int scooterId) throws Exception;
     List<GPSLog> getLocationHistory(int scooterId) throws Exception;
+    GPSLog simulateAndSave(int scooterId) throws Exception;
 }
