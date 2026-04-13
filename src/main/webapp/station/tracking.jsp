@@ -1,9 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page import="java.util.List" %>
+<%@ page import="business.model.GPSLog" %>
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Final Project Mock App</title>
+    <title>Tracking</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 24px; }
         nav a { margin-right: 12px; }
@@ -11,57 +14,91 @@
         th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         .card { border: 1px solid #ddd; padding: 16px; margin: 12px 0; }
         .muted { color: #666; }
-        input, select { padding: 6px; margin: 4px 0; width: 280px; }
     </style>
 </head>
+
 <script>
     setTimeout(function() {
         location.reload();
-    }, 15000); // refresh every 3 seconds
+    }, 5000); // 🔥 faster refresh (5 sec)
 </script>
+
 <body>
+
+<%
+    String role = (String) session.getAttribute("role");
+    GPSLog latest = (GPSLog) request.getAttribute("latest");
+    List<GPSLog> history = (List<GPSLog>) request.getAttribute("history");
+%>
+
 <nav>
-    <a href="${pageContext.request.contextPath}/login">Login</a>
-    <a href="${pageContext.request.contextPath}/register">Register</a>
     <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
-    <a href="${pageContext.request.contextPath}/profile">Profile</a>
-    <a href="${pageContext.request.contextPath}/scooters">Scooters</a>
-    <a href="${pageContext.request.contextPath}/stations">Stations</a>
-    <a href="${pageContext.request.contextPath}/maintenance">Maintenance</a>
-    <a href="${pageContext.request.contextPath}/reports">Reports</a>
-    <a href="${pageContext.request.contextPath}/monthly-statement">Monthly Statement</a>
     <a href="${pageContext.request.contextPath}/tracking">Tracking</a>
     <a href="${pageContext.request.contextPath}/logout">Logout</a>
 </nav>
+
 <hr/>
-<%@ page import="java.util.List" %>
-<%@ page import="business.model.GPSLog" %>
-<h1>Tracking</h1>
+
+<h1>🚴 Scooter Tracking</h1>
+
+<!-- 🔥 Role Display -->
+<p><strong>Role:</strong> <%= role %></p>
+
+<!-- 🔥 Role-based heading -->
+<% if ("MAINTAINER".equals(role)) { %>
+    <h3>All Scooters Tracking (Maintainer View)</h3>
+<% } else if ("SPONSOR".equals(role)) { %>
+    <h3>Your Scooters Tracking</h3>
+<% } else { %>
+    <h3>Tracking View</h3>
+<% } %>
+
+<!-- 🔥 Latest Info -->
 <div class="card">
-    <p><strong>Latest scooter ID:</strong> ${latest.scooterId}</p>
-    <p><strong>Coordinates:</strong> ${latest.latitude}, ${latest.longitude}</p>
-    <p><strong>Nearest station:</strong> ${latest.nearestStationId}</p>
+<% if (latest != null) { %>
+    <p><strong>Scooter ID:</strong> <%= latest.getScooterId() %></p>
+    <p><strong>Coordinates:</strong> <%= latest.getLatitude() %>, <%= latest.getLongitude() %></p>
+    <p><strong>Nearest station:</strong> <%= latest.getNearestStationId() %></p>
+<% } else { %>
+    <p class="muted">No tracking data available.</p>
+<% } %>
 </div>
-<h2>History</h2>
+
+<h2>📊 History</h2>
+
+<!-- 🔥 Empty check -->
+<% if (history == null || history.isEmpty()) { %>
+    <p class="muted">No scooters available for tracking.</p>
+<% } else { %>
 
 <table>
-    <tr><th>Log ID</th><th>Scooter</th><th>Latitude</th><th>Longitude</th><th>In Transit</th></tr>
-   <%
-    List<GPSLog> history = (List<GPSLog>) request.getAttribute("history");
-    if (history != null) {
-        for (GPSLog log : history) {
+    <tr>
+        <th>Log ID</th>
+        <th>Scooter</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Status</th>
+    </tr>
+
+<%
+    for (GPSLog log : history) {
 %>
     <tr>
         <td><%= log.getLogId() %></td>
         <td><%= log.getScooterId() %></td>
         <td><%= log.getLatitude() %></td>
         <td><%= log.getLongitude() %></td>
-        <td><%= log.isInTransit() %></td>
+        <td>
+            <%= log.isInTransit() ? "🚴 In Transit" : "📍 At Station" %>
+        </td>
     </tr>
-    <%
-        }
+<%
     }
 %>
+
 </table>
+
+<% } %>
+
 </body>
 </html>
