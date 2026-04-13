@@ -53,7 +53,7 @@
         </nav>
         <hr/><hr/>
         <h1>Register Scooter</h1>
-        <a href="${pageContext.request.contextPath}/scooters?action=add">+ Register New Scooter</a>
+        
         <form method="post" action="${pageContext.request.contextPath}/scooters">
             <table>
                 

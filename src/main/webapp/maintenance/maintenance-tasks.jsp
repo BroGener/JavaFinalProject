@@ -1,3 +1,6 @@
+<%@ page import="java.util.List" %>
+<%@ page import="business.model.MaintenanceAlert" %>
+<%@ page import="business.model.MaintenanceTask" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -15,23 +18,9 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="${pageContext.request.contextPath}/login">Login</a>
-    <a href="${pageContext.request.contextPath}/register">Register</a>
-    <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
-    <a href="${pageContext.request.contextPath}/profile">Profile</a>
-    <a href="${pageContext.request.contextPath}/scooters">Scooters</a>
-    <a href="${pageContext.request.contextPath}/stations">Stations</a>
-    <a href="${pageContext.request.contextPath}/maintenance">Maintenance</a>
-    <a href="${pageContext.request.contextPath}/reports">Reports</a>
-    <a href="${pageContext.request.contextPath}/monthly-statement">Monthly Statement</a>
-    <a href="${pageContext.request.contextPath}/tracking">Tracking</a>
-    <a href="${pageContext.request.contextPath}/logout">Logout</a>
-</nav>
+<%@ include file="/common/navbar.jsp" %>
 <hr/>
-<%@ page import="java.util.List" %>
-<%@ page import="business.model.MaintenanceAlert" %>
-<%@ page import="business.model.MaintenanceTask" %>
+
 <h1>Maintenance</h1>
 <h2>Open Alerts</h2>
 <table>

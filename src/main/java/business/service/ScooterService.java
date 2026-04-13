@@ -10,4 +10,6 @@ public interface ScooterService {
     Optional<Scooter> getScooterById(int scooterId) throws Exception;
     List<Scooter> getAllScooters() throws Exception;
     List<Scooter> getScootersBySponsor(int sponsorUserId) throws Exception;
+    void updateScooterStatus(int scooterId, String status) throws Exception;
+    List<Scooter> getScootersByStation(int stationId) throws Exception;
 }

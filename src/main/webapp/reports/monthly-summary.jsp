@@ -1,3 +1,5 @@
+<%@ page import="java.util.List" %>
+<%@ page import="business.model.ActivityCredit" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -15,25 +17,12 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="${pageContext.request.contextPath}/login">Login</a>
-    <a href="${pageContext.request.contextPath}/register">Register</a>
-    <a href="${pageContext.request.contextPath}/dashboard">Dashboard</a>
-    <a href="${pageContext.request.contextPath}/profile">Profile</a>
-    <a href="${pageContext.request.contextPath}/scooters">Scooters</a>
-    <a href="${pageContext.request.contextPath}/stations">Stations</a>
-    <a href="${pageContext.request.contextPath}/maintenance">Maintenance</a>
-    <a href="${pageContext.request.contextPath}/reports">Reports</a>
-    <a href="${pageContext.request.contextPath}/monthly-statement">Monthly Statement</a>
-    <a href="${pageContext.request.contextPath}/tracking">Tracking</a>
-    <a href="${pageContext.request.contextPath}/logout">Logout</a>
-</nav>
+<%@ include file="/common/navbar.jsp" %>
 <hr/>
-<%@ page import="java.util.List" %>
-<%@ page import="business.model.ActivityCredit" %>
+
 <h1>Monthly Statement</h1>
 <div class="card">
-    <p><strong>User:</strong> ${summary.userId}</p>
+    <p><strong>User:</strong> ${sessionScope.userName}</p>
     <p><strong>Period:</strong> ${summary.year}-${summary.month}</p>
     <p><strong>Trips:</strong> ${summary.tripCount}</p>
     <p><strong>Distance:</strong> ${summary.totalDistanceKm} km</p>

@@ -11,16 +11,27 @@ import java.time.LocalDate;
 
 @WebServlet("/monthly-statement")
 public class MonthlyStatementServlet extends BaseServlet {
+
     private final ReportService reportService = new ReportServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         LocalDate now = LocalDate.now();
         try {
-            request.setAttribute("summary", reportService.getMonthlySummary(1, now.getYear(), now.getMonthValue()));
-            request.setAttribute("credits", reportService.getCreditsByActivity(1, now.getYear(), now.getMonthValue()));
-            request.getRequestDispatcher("/reports/monthly-summary.jsp").forward(request, response);
-        } catch (Exception e) {
+            Integer userId = (Integer) request.getSession().getAttribute(
+                    "userId");
+            if (userId == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+            request.setAttribute("summary", reportService.getMonthlySummary(
+                    userId, now.getYear(), now.getMonthValue()));
+            request.setAttribute("credits", reportService.getCreditsByActivity(
+                    userId, now.getYear(), now.getMonthValue()));
+            request.getRequestDispatcher("/reports/monthly-summary.jsp").forward(
+                    request, response);
+        }
+        catch (Exception e) {
             throw new ServletException(e);
         }
     }

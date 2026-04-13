@@ -1,0 +1,429 @@
+classDiagram
+    class business_adapter_ExternalGPSDevice["ExternalGPSDevice"] {
+        +fetchCoordinates(): String
+    }
+    class business_adapter_GPSAdapter["GPSAdapter"] {
+        ~externalGPSDevice: ExternalGPSDevice
+        +PSAdapter(externalGPSDevice: ExternalGPSDevice): G
+    }
+    class business_adapter_GPSDataProvider["GPSDataProvider"] {
+        <<interface>>
+    }
+    class business_builder_ScooterBuilder["ScooterBuilder"] {
+        -vehicleNumber: String
+        -make: String
+        -model: String
+        -color: String
+        -batteryCapacity: int
+        -currentChargeLevel: int
+        -status: String
+        -sponsorUserId: Integer
+        -currentStationId: Integer
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        ~this: return
+        +setVehicleNumber(vehicleNumber: String): ScooterBuilder
+    }
+    class business_factory_UserFactory["UserFactory"] {
+        -serFactory(): U
+    }
+    class business_model_AccountTransaction["AccountTransaction"] {
+        -transactionId: Integer
+        -userId: Integer
+        -activityName: String
+        -amount: double
+        -transactionType: String
+        -transactionDate: LocalDate
+    }
+    class business_model_ActivityCredit["ActivityCredit"] {
+        -activityName: String
+        -amount: double
+    }
+    class business_model_ChargingStation["ChargingStation"] {
+        -stationId: Integer
+        -stationName: String
+        -location: String
+        -capacity: int
+        -availableSlots: int
+    }
+    class business_model_GPSLog["GPSLog"] {
+        -logId: Integer
+        -scooterId: Integer
+        -latitude: double
+        -longitude: double
+        -inTransit: boolean
+        -nearestStationId: Integer
+        -recordedAt: LocalDateTime
+    }
+    class business_model_Maintainer["Maintainer"] {
+        +aintainer(): M
+    }
+    class business_model_MaintenanceAlert["MaintenanceAlert"] {
+        -alertId: Integer
+        -scooterId: Integer
+        -alertType: String
+        -status: String
+        -notes: String
+        -createdAt: LocalDateTime
+    }
+    class business_model_MaintenanceTask["MaintenanceTask"] {
+        -taskId: Integer
+        -scooterId: Integer
+        -maintainerUserId: Integer
+        -description: String
+        -priority: String
+        -status: String
+        -dueDate: LocalDate
+    }
+    class business_model_MonthlySummary["MonthlySummary"] {
+        -userId: int
+        -year: int
+        -month: int
+        -tripCount: int
+        -totalDistanceKm: double
+        -totalAmount: double
+    }
+    class business_model_Scooter["Scooter"] {
+        -scooterId: Integer
+        -sponsorUserId: Integer
+        -vehicleNumber: String
+        -make: String
+        -model: String
+        -color: String
+        -batteryCapacity: int
+        -currentChargeLevel: int
+        -status: String
+        -currentStationId: Integer
+        +cooter(): S
+    }
+    class business_model_Sponsor["Sponsor"] {
+        +ponsor(): S
+    }
+    class business_model_StationReport["StationReport"] {
+        -stationId: int
+        -stationName: String
+        -totalScooters: int
+        -availableScooters: int
+        -lowBatteryScooters: int
+    }
+    class business_model_User["User"] {
+        -userId: Integer
+        -name: String
+        -email: String
+        -password: String
+        -role: String
+        -creditBalance: Double
+        +ser(): U
+    }
+    class business_observer_BatteryObserver["BatteryObserver"] {
+    }
+    class business_observer_MaintenanceAlertObserver["MaintenanceAlertObserver"] {
+    }
+    class business_observer_Observer["Observer"] {
+        <<interface>>
+    }
+    class business_observer_ScooterMonitor["ScooterMonitor"] {
+    }
+    class business_observer_Subject["Subject"] {
+        <<interface>>
+    }
+    class business_service_AuthService["AuthService"] {
+        <<interface>>
+        ~login(email: String, password: String): Optional<User>
+        ~register(name: String, email: String, password: String, role: String): int
+    }
+    class business_service_BillingService["BillingService"] {
+        <<interface>>
+    }
+    class business_service_MaintenanceService["MaintenanceService"] {
+        <<interface>>
+        ~createAlert(alert: MaintenanceAlert): int
+        ~scheduleTask(task: MaintenanceTask): int
+        ~getOpenAlerts(): List<MaintenanceAlert>
+        ~getTasksByMaintainer(maintainerUserId: int): List<MaintenanceTask>
+    }
+    class business_service_ReportService["ReportService"] {
+        <<interface>>
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+        ~getCreditsByActivity(userId: int, year: int, month: int): List<ActivityCredit>
+        ~getStationReports(): List<StationReport>
+    }
+    class business_service_ScooterService["ScooterService"] {
+        <<interface>>
+        ~registerScooter(scooter: Scooter): int
+        ~updateScooter(scooter: Scooter): boolean
+        ~getScooterById(scooterId: int): Optional<Scooter>
+        ~getAllScooters(): List<Scooter>
+        ~getScootersBySponsor(sponsorUserId: int): List<Scooter>
+        ~updateScooterStatus(scooterId: int, status: String): void
+    }
+    class business_service_StationService["StationService"] {
+        <<interface>>
+        ~getStationById(stationId: int): Optional<ChargingStation>
+        ~getAllStations(): List<ChargingStation>
+        ~getStationReports(): List<StationReport>
+    }
+    class business_service_TrackingService["TrackingService"] {
+        <<interface>>
+        ~saveLocation(log: GPSLog): int
+        ~getLatestLocation(scooterId: int): Optional<GPSLog>
+        ~getLocationHistory(scooterId: int): List<GPSLog>
+    }
+    class business_service_UserService["UserService"] {
+        <<interface>>
+        ~getUserById(userId: int): Optional<User>
+        ~getUserByEmail(email: String): Optional<User>
+    }
+    class business_service_impl_AuthServiceImpl["AuthServiceImpl"] {
+        +login(email: String, password: String): Optional<User>
+    }
+    class business_service_impl_BillingServiceImpl["BillingServiceImpl"] {
+        +calculateAmount(strategy: AccountCalculationStrategy, context: AccountContext): double
+    }
+    class business_service_impl_MaintenanceServiceImpl["MaintenanceServiceImpl"] {
+    }
+    class business_service_impl_ReportServiceImpl["ReportServiceImpl"] {
+    }
+    class business_service_impl_ScooterServiceImpl["ScooterServiceImpl"] {
+        +registerScooter(scooter: Scooter): int
+    }
+    class business_service_impl_StationServiceImpl["StationServiceImpl"] {
+    }
+    class business_service_impl_TrackingServiceImpl["TrackingServiceImpl"] {
+    }
+    class business_service_impl_UserServiceImpl["UserServiceImpl"] {
+    }
+    class business_strategy_AccountCalculationStrategy["AccountCalculationStrategy"] {
+        <<interface>>
+    }
+    class business_strategy_AccountContext["AccountContext"] {
+        ~distanceKm: double
+        ~minutesAwayFromStation: double
+        ~scootersReturned: int
+        +ccountContext(distanceKm: double, minutesAwayFromStation: double, scootersReturned: int): A
+    }
+    class business_strategy_MaintainerCreditStrategy["MaintainerCreditStrategy"] {
+    }
+    class business_strategy_SponsorCreditStrategy["SponsorCreditStrategy"] {
+    }
+    class business_strategy_UserDebitStrategy["UserDebitStrategy"] {
+    }
+    class data_dao_MaintenanceDAO["MaintenanceDAO"] {
+        <<interface>>
+        ~insertAlert(alert: MaintenanceAlert): int
+        ~insertTask(task: MaintenanceTask): int
+        ~findOpenAlerts(): List<MaintenanceAlert>
+        ~findTasksByMaintainerId(maintainerUserId: int): List<MaintenanceTask>
+        ~updateAlertStatus(alertId: int, status: String): boolean
+        ~updateTaskStatus(taskId: int, status: String): boolean
+    }
+    class data_dao_ReportDAO["ReportDAO"] {
+        <<interface>>
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+        ~getCreditsByActivity(userId: int, year: int, month: int): List<ActivityCredit>
+        ~getStationReports(): List<StationReport>
+    }
+    class data_dao_ScooterDAO["ScooterDAO"] {
+        <<interface>>
+        ~findByVehicleNumber(vehicleNumber: String): Optional<Scooter>
+        ~findBySponsorId(sponsorUserId: int): List<Scooter>
+        ~findByStationId(stationId: int): List<Scooter>
+    }
+    class data_dao_StationDAO["StationDAO"] {
+        <<interface>>
+        ~findStationReports(): List<StationReport>
+    }
+    class data_dao_TrackingDAO["TrackingDAO"] {
+        <<interface>>
+        ~findLatestByScooterId(scooterId: int): Optional<GPSLog>
+        ~findByScooterId(scooterId: int): List<GPSLog>
+    }
+    class data_dao_TransactionDAO["TransactionDAO"] {
+        <<interface>>
+        ~findByUserId(userId: int): List<AccountTransaction>
+        ~findByUserIdAndMonth(userId: int, year: int, month: int): List<AccountTransaction>
+    }
+    class data_dao_UserDAO["UserDAO"] {
+        <<interface>>
+        ~findByEmail(email: String): Optional<User>
+        ~findByEmailAndPassword(email: String, password: String): Optional<User>
+    }
+    class data_daoimpl_MaintenanceDAO["MaintenanceDAO"] {
+        ~list: return
+        +insertAlert(alert: MaintenanceAlert): int
+    }
+    class data_daoimpl_MySQLMaintenanceDAO["MySQLMaintenanceDAO"] {
+    }
+    class data_daoimpl_MySQLReportDAO["MySQLReportDAO"] {
+    }
+    class data_daoimpl_MySQLScooterDAO["MySQLScooterDAO"] {
+        ~false: return
+        ~false: return
+        ~list: return
+        ~list: return
+        ~list: return
+        -getConnection(): Connection
+    }
+    class data_daoimpl_MySQLStationDAO["MySQLStationDAO"] {
+        ~s: return
+        -extract(rs: ResultSet): ChargingStation
+    }
+    class data_daoimpl_MySQLUserDAO["MySQLUserDAO"] {
+        ~u: return
+        -extract(rs: ResultSet): User
+    }
+    class data_daoimpl_ReportDAO["ReportDAO"] {
+    }
+    class data_daoimpl_ScooterDAO["ScooterDAO"] {
+        ~list: return
+        ~list: return
+        +insert(entity: Scooter): Integer
+    }
+    class data_daoimpl_StationDAO["StationDAO"] {
+    }
+    class data_daoimpl_TrackingDAO["TrackingDAO"] {
+        ~list: return
+        +insert(entity: GPSLog): Integer
+    }
+    class data_daoimpl_TransactionDAO["TransactionDAO"] {
+    }
+    class data_daoimpl_UserDAO["UserDAO"] {
+        +insert(entity: User): Integer
+    }
+    class data_datasource_DAOFactory["DAOFactory"] {
+        ~getUserDAO(): data.dao.UserDAO
+    }
+    class data_datasource_DataSource["DataSource"] {
+        ~USER: String
+        ~PASSWORD: String
+        ~getConnection(): Connection
+    }
+    class data_datasource_MockDataStore["MockDataStore"] {
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+    }
+    class group10_finalproject_JakartaRestConfiguration["JakartaRestConfiguration"] {
+    }
+    class group10_finalproject_resources_JakartaEE8Resource["JakartaEE8Resource"] {
+    }
+    class presentation_controller_BaseServlet["BaseServlet"] {
+        #getLoggedInUserId(request: HttpServletRequest): Integer
+    }
+    class presentation_controller_DashboardServlet["DashboardServlet"] {
+    }
+    class presentation_controller_LoginServlet["LoginServlet"] {
+    }
+    class presentation_controller_LogoutServlet["LogoutServlet"] {
+    }
+    class presentation_controller_MaintenanceServlet["MaintenanceServlet"] {
+    }
+    class presentation_controller_MonthlyStatementServlet["MonthlyStatementServlet"] {
+    }
+    class presentation_controller_ProfileServlet["ProfileServlet"] {
+    }
+    class presentation_controller_RegisterServlet["RegisterServlet"] {
+    }
+    class presentation_controller_ReportServlet["ReportServlet"] {
+    }
+    class presentation_controller_ScooterServlet["ScooterServlet"] {
+    }
+    class presentation_controller_StationServlet["StationServlet"] {
+        -stationService: StationService
+    }
+    class presentation_controller_TrackingServlet["TrackingServlet"] {
+    }
+    class presentation_filter_AuthFilter["AuthFilter"] {
+    }
+    class presentation_filter_RoleFilter["RoleFilter"] {
+    }
+    class util_Constants["Constants"] {
+        ~SESSION_USER_ID: String
+        ~SESSION_USER_ROLE: String
+        ~SESSION_USER_NAME: String
+        ~APP_TITLE: String
+    }
+    class util_SessionUtils["SessionUtils"] {
+        ~logout(request: HttpServletRequest): void
+    }
+    class util_ValidationUtils["ValidationUtils"] {
+    }
+    business_adapter_GPSDataProvider <|.. business_adapter_GPSAdapter
+    business_model_User <|-- business_model_Maintainer
+    business_model_User <|-- business_model_Sponsor
+    business_observer_Observer <|.. business_observer_BatteryObserver
+    business_observer_Observer <|.. business_observer_MaintenanceAlertObserver
+    business_observer_Subject <|.. business_observer_ScooterMonitor
+    business_service_AuthService <|.. business_service_impl_AuthServiceImpl
+    business_service_BillingService <|.. business_service_impl_BillingServiceImpl
+    business_service_MaintenanceService <|.. business_service_impl_MaintenanceServiceImpl
+    business_service_ReportService <|.. business_service_impl_ReportServiceImpl
+    business_service_ScooterService <|.. business_service_impl_ScooterServiceImpl
+    business_service_StationService <|.. business_service_impl_StationServiceImpl
+    business_service_TrackingService <|.. business_service_impl_TrackingServiceImpl
+    business_service_UserService <|.. business_service_impl_UserServiceImpl
+    business_strategy_AccountCalculationStrategy <|.. business_strategy_MaintainerCreditStrategy
+    business_strategy_AccountCalculationStrategy <|.. business_strategy_SponsorCreditStrategy
+    business_strategy_AccountCalculationStrategy <|.. business_strategy_UserDebitStrategy
+    data_daoimpl_MaintenanceDAO <|.. data_daoimpl_MaintenanceDAO
+    data_daoimpl_MaintenanceDAO <|.. data_daoimpl_MySQLMaintenanceDAO
+    data_daoimpl_ReportDAO <|.. data_daoimpl_MySQLReportDAO
+    data_daoimpl_ScooterDAO <|.. data_daoimpl_MySQLScooterDAO
+    data_daoimpl_StationDAO <|.. data_daoimpl_MySQLStationDAO
+    data_daoimpl_UserDAO <|.. data_daoimpl_MySQLUserDAO
+    data_daoimpl_ReportDAO <|.. data_daoimpl_ReportDAO
+    data_daoimpl_ScooterDAO <|.. data_daoimpl_ScooterDAO
+    data_daoimpl_StationDAO <|.. data_daoimpl_StationDAO
+    data_daoimpl_TrackingDAO <|.. data_daoimpl_TrackingDAO
+    data_daoimpl_TransactionDAO <|.. data_daoimpl_TransactionDAO
+    data_daoimpl_UserDAO <|.. data_daoimpl_UserDAO
+    presentation_controller_BaseServlet <|-- presentation_controller_DashboardServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_LoginServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_LogoutServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_MaintenanceServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_MonthlyStatementServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_ProfileServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_RegisterServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_ReportServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_ScooterServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_StationServlet
+    presentation_controller_BaseServlet <|-- presentation_controller_TrackingServlet
+    business_adapter_GPSAdapter --> business_adapter_ExternalGPSDevice : uses
+    business_service_AuthService --> business_model_User : uses
+    business_service_MaintenanceService --> business_model_MaintenanceAlert : uses
+    business_service_MaintenanceService --> business_model_MaintenanceTask : uses
+    business_service_ReportService --> business_model_ActivityCredit : uses
+    business_service_ReportService --> business_model_StationReport : uses
+    business_service_ReportService --> business_model_MonthlySummary : uses
+    business_service_ScooterService --> business_model_Scooter : uses
+    business_service_StationService --> business_model_ChargingStation : uses
+    business_service_StationService --> business_model_StationReport : uses
+    business_service_TrackingService --> business_model_GPSLog : uses
+    business_service_UserService --> business_model_User : uses
+    business_service_impl_AuthServiceImpl --> business_model_User : uses
+    business_service_impl_BillingServiceImpl --> business_strategy_AccountCalculationStrategy : uses
+    business_service_impl_BillingServiceImpl --> business_strategy_AccountContext : uses
+    business_service_impl_ScooterServiceImpl --> business_model_Scooter : uses
+    data_dao_MaintenanceDAO --> business_model_MaintenanceAlert : uses
+    data_dao_MaintenanceDAO --> business_model_MaintenanceTask : uses
+    data_dao_ReportDAO --> business_model_ActivityCredit : uses
+    data_dao_ReportDAO --> business_model_StationReport : uses
+    data_dao_ReportDAO --> business_model_MonthlySummary : uses
+    data_dao_ScooterDAO --> business_model_Scooter : uses
+    data_dao_StationDAO --> business_model_StationReport : uses
+    data_dao_TrackingDAO --> business_model_GPSLog : uses
+    data_dao_TransactionDAO --> business_model_AccountTransaction : uses
+    data_dao_UserDAO --> business_model_User : uses
+    data_daoimpl_MaintenanceDAO --> business_model_MaintenanceAlert : uses
+    data_daoimpl_MySQLStationDAO --> business_model_ChargingStation : uses
+    data_daoimpl_MySQLUserDAO --> business_model_User : uses
+    data_daoimpl_ScooterDAO --> business_model_Scooter : uses
+    data_daoimpl_TrackingDAO --> business_model_GPSLog : uses
+    data_daoimpl_UserDAO --> business_model_User : uses
+    data_datasource_DAOFactory --> data_daoimpl_UserDAO : uses
+    data_datasource_MockDataStore --> business_model_MonthlySummary : uses
+    presentation_controller_StationServlet --> business_service_StationService : uses

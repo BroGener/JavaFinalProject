@@ -8,6 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import business.model.Scooter;
+import business.observer.BatteryObserver;
+import business.observer.ScooterMonitor;
+import java.util.List;
+import business.strategy.AccountContext;
+import business.strategy.UserDebitStrategy;
+import business.strategy.SponsorCreditStrategy;
+import business.observer.ScooterMonitor;
+import business.observer.BatteryObserver;
 
 @WebServlet("/scooters")
 public class ScooterServlet extends BaseServlet {
@@ -21,6 +29,91 @@ public class ScooterServlet extends BaseServlet {
         try {
             if ("add".equals(action)) {
                 request.getRequestDispatcher("/scooter/scooter-form.jsp").forward(
+                        request, response);
+            }
+            else if ("unlock".equals(action)) {
+                int scooterId = Integer.parseInt(request.getParameter(
+                        "scooterId"));
+                //  IN_USE
+                scooterService.updateScooterStatus(scooterId, "IN_USE");
+                //  session
+                request.getSession().setAttribute("rideStart_" + scooterId,
+                        System.currentTimeMillis());
+                response.sendRedirect(request.getContextPath() + "/scooters");
+
+            }
+            else if ("return".equals(action)) {
+                int scooterId = Integer.parseInt(request.getParameter(
+                        "scooterId"));
+
+                // 
+                Long startTime = (Long) request.getSession().getAttribute(
+                        "rideStart_" + scooterId);
+                double minutesUsed = startTime != null
+                        ? (System.currentTimeMillis() - startTime)  : 5.0;
+
+                // Strategy 
+                AccountContext ctx = new AccountContext(0, minutesUsed, 0);
+                double userDebit = new UserDebitStrategy().calculate(ctx);
+                double sponsorCredit = new SponsorCreditStrategy().calculate(ctx);
+
+                // 
+                userDebit = Math.round(userDebit * 100.0) / 100.0;
+
+                // userId
+                Integer userId = (Integer) request.getSession().getAttribute(
+                        "userId");
+                if (userId == null) {
+                    userId = 1;
+                }
+
+                //  User DEBIT
+                try (java.sql.Connection con = data.datasource.DataSource.getConnection(); java.sql.PreparedStatement ps = con.prepareStatement(
+                        "INSERT INTO account_transactions(user_id, activity_name, amount, transaction_type) VALUES (?,?,?,?)")) {
+                    ps.setInt(1, userId);
+                    ps.setString(2, "SCOOTER_USE");
+                    ps.setDouble(3, userDebit);
+                    ps.setString(4, "DEBIT");
+                    ps.executeUpdate();
+                }
+
+                //  Sponsor CREDIT（找到这个 scooter 的 sponsor）
+                java.util.Optional<Scooter> scooterOpt = scooterService.getScooterById(
+                        scooterId);
+                if (scooterOpt.isPresent() && scooterOpt.get().getSponsorUserId() != null) {
+                    int sponsorId = scooterOpt.get().getSponsorUserId();
+                    try (java.sql.Connection con = data.datasource.DataSource.getConnection(); java.sql.PreparedStatement ps = con.prepareStatement(
+                            "INSERT INTO account_transactions(user_id, activity_name, amount, transaction_type) VALUES (?,?,?,?)")) {
+                        ps.setInt(1, sponsorId);
+                        ps.setString(2, "SPONSOR_CREDIT");
+                        ps.setDouble(3, sponsorCredit);
+                        ps.setString(4, "CREDIT");
+                        ps.executeUpdate();
+                    }
+                }
+
+                //  AVAILABLE
+                scooterService.updateScooterStatus(scooterId, "AVAILABLE");
+
+                //  Observer
+                ScooterMonitor monitor = new ScooterMonitor();
+                monitor.addObserver(new BatteryObserver());
+                int chargeLevel = scooterOpt.isPresent()
+                        ? scooterOpt.get().getCurrentChargeLevel() : 100;
+                monitor.notifyObservers(scooterId, chargeLevel,
+                        minutesUsed / 60.0);
+
+                request.getSession().removeAttribute("rideStart_" + scooterId);
+                response.sendRedirect(request.getContextPath() + "/scooters");
+            }
+            else if ("byStation".equals(action)) {
+                int stationId = Integer.parseInt(request.getParameter(
+                        "stationId"));
+                List<Scooter> scooters = scooterService.getScootersByStation(
+                        stationId);
+                request.setAttribute("scooters", scooters);
+                request.setAttribute("stationId", stationId);
+                request.getRequestDispatcher("/scooter/scooter-list.jsp").forward(
                         request, response);
             }
             else {

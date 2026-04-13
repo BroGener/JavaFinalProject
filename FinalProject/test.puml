@@ -1,0 +1,445 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "business.adapter" {
+    class ExternalGPSDevice {
+        +fetchCoordinates(): String
+    }
+
+    interface GPSDataProvider
+
+    class GPSAdapter {
+        ~externalGPSDevice: ExternalGPSDevice
+    }
+
+    GPSDataProvider <|.. GPSAdapter
+    GPSAdapter --> ExternalGPSDevice : uses
+}
+
+package "business.builder" {
+    class ScooterBuilder {
+        -vehicleNumber: String
+        -make: String
+        -model: String
+        -color: String
+        -batteryCapacity: int
+        -currentChargeLevel: int
+        -status: String
+        -sponsorUserId: Integer
+        -currentStationId: Integer
+
+        +setVehicleNumber(vehicleNumber: String): ScooterBuilder
+    }
+}
+
+package "business.factory" {
+    class UserFactory
+}
+
+package "business.model" {
+    class AccountTransaction {
+        -transactionId: Integer
+        -userId: Integer
+        -activityName: String
+        -amount: double
+        -transactionType: String
+        -transactionDate: LocalDate
+    }
+
+    class ActivityCredit {
+        -activityName: String
+        -amount: double
+    }
+
+    class ChargingStation {
+        -stationId: Integer
+        -stationName: String
+        -location: String
+        -capacity: int
+        -availableSlots: int
+    }
+
+    class GPSLog {
+        -logId: Integer
+        -scooterId: Integer
+        -latitude: double
+        -longitude: double
+        -inTransit: boolean
+        -nearestStationId: Integer
+        -recordedAt: LocalDateTime
+    }
+
+    class User {
+        -userId: Integer
+        -name: String
+        -email: String
+        -password: String
+        -role: String
+        -creditBalance: Double
+    }
+
+    class Maintainer
+    class Sponsor
+
+    class MaintenanceAlert {
+        -alertId: Integer
+        -scooterId: Integer
+        -alertType: String
+        -status: String
+        -notes: String
+        -createdAt: LocalDateTime
+    }
+
+    class MaintenanceTask {
+        -taskId: Integer
+        -scooterId: Integer
+        -maintainerUserId: Integer
+        -description: String
+        -priority: String
+        -status: String
+        -dueDate: LocalDate
+    }
+
+    class MonthlySummary {
+        -userId: int
+        -year: int
+        -month: int
+        -tripCount: int
+        -totalDistanceKm: double
+        -totalAmount: double
+    }
+
+    class Scooter {
+        -scooterId: Integer
+        -sponsorUserId: Integer
+        -vehicleNumber: String
+        -make: String
+        -model: String
+        -color: String
+        -batteryCapacity: int
+        -currentChargeLevel: int
+        -status: String
+        -currentStationId: Integer
+    }
+
+    class StationReport {
+        -stationId: int
+        -stationName: String
+        -totalScooters: int
+        -availableScooters: int
+        -lowBatteryScooters: int
+    }
+
+    User <|-- Maintainer
+    User <|-- Sponsor
+}
+
+package "business.observer" {
+    interface Observer
+    interface Subject
+
+    class BatteryObserver
+    class MaintenanceAlertObserver
+    class ScooterMonitor
+
+    Observer <|.. BatteryObserver
+    Observer <|.. MaintenanceAlertObserver
+    Subject <|.. ScooterMonitor
+}
+
+package "business.strategy" {
+    interface AccountCalculationStrategy
+
+    class AccountContext {
+        ~distanceKm: double
+        ~minutesAwayFromStation: double
+        ~scootersReturned: int
+    }
+
+    class MaintainerCreditStrategy
+    class SponsorCreditStrategy
+    class UserDebitStrategy
+
+    AccountCalculationStrategy <|.. MaintainerCreditStrategy
+    AccountCalculationStrategy <|.. SponsorCreditStrategy
+    AccountCalculationStrategy <|.. UserDebitStrategy
+}
+
+package "business.service" {
+    interface AuthService {
+        ~login(email: String, password: String): Optional<User>
+        ~register(name: String, email: String, password: String, role: String): int
+    }
+
+    interface BillingService
+
+    interface MaintenanceService {
+        ~createAlert(alert: MaintenanceAlert): int
+        ~scheduleTask(task: MaintenanceTask): int
+        ~getOpenAlerts(): List<MaintenanceAlert>
+        ~getTasksByMaintainer(maintainerUserId: int): List<MaintenanceTask>
+    }
+
+    interface ReportService {
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+        ~getCreditsByActivity(userId: int, year: int, month: int): List<ActivityCredit>
+        ~getStationReports(): List<StationReport>
+    }
+
+    interface ScooterService {
+        ~registerScooter(scooter: Scooter): int
+        ~updateScooter(scooter: Scooter): boolean
+        ~getScooterById(scooterId: int): Optional<Scooter>
+        ~getAllScooters(): List<Scooter>
+        ~getScootersBySponsor(sponsorUserId: int): List<Scooter>
+        ~updateScooterStatus(scooterId: int, status: String): void
+    }
+
+    interface StationService {
+        ~getStationById(stationId: int): Optional<ChargingStation>
+        ~getAllStations(): List<ChargingStation>
+        ~getStationReports(): List<StationReport>
+    }
+
+    interface TrackingService {
+        ~saveLocation(log: GPSLog): int
+        ~getLatestLocation(scooterId: int): Optional<GPSLog>
+        ~getLocationHistory(scooterId: int): List<GPSLog>
+    }
+
+    interface UserService {
+        ~getUserById(userId: int): Optional<User>
+        ~getUserByEmail(email: String): Optional<User>
+    }
+}
+
+package "business.service.impl" {
+    class AuthServiceImpl {
+        +login(email: String, password: String): Optional<User>
+    }
+
+    class BillingServiceImpl {
+        +calculateAmount(strategy: AccountCalculationStrategy, context: AccountContext): double
+    }
+
+    class MaintenanceServiceImpl
+    class ReportServiceImpl
+
+    class ScooterServiceImpl {
+        +registerScooter(scooter: Scooter): int
+    }
+
+    class StationServiceImpl
+    class TrackingServiceImpl
+    class UserServiceImpl
+
+    AuthService <|.. AuthServiceImpl
+    BillingService <|.. BillingServiceImpl
+    MaintenanceService <|.. MaintenanceServiceImpl
+    ReportService <|.. ReportServiceImpl
+    ScooterService <|.. ScooterServiceImpl
+    StationService <|.. StationServiceImpl
+    TrackingService <|.. TrackingServiceImpl
+    UserService <|.. UserServiceImpl
+}
+
+package "data.dao" {
+    interface MaintenanceDAO {
+        ~insertAlert(alert: MaintenanceAlert): int
+        ~insertTask(task: MaintenanceTask): int
+        ~findOpenAlerts(): List<MaintenanceAlert>
+        ~findTasksByMaintainerId(maintainerUserId: int): List<MaintenanceTask>
+        ~updateAlertStatus(alertId: int, status: String): boolean
+        ~updateTaskStatus(taskId: int, status: String): boolean
+    }
+
+    interface ReportDAO {
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+        ~getCreditsByActivity(userId: int, year: int, month: int): List<ActivityCredit>
+        ~getStationReports(): List<StationReport>
+    }
+
+    interface ScooterDAO {
+        ~findByVehicleNumber(vehicleNumber: String): Optional<Scooter>
+        ~findBySponsorId(sponsorUserId: int): List<Scooter>
+        ~findByStationId(stationId: int): List<Scooter>
+    }
+
+    interface StationDAO {
+        ~findStationReports(): List<StationReport>
+    }
+
+    interface TrackingDAO {
+        ~findLatestByScooterId(scooterId: int): Optional<GPSLog>
+        ~findByScooterId(scooterId: int): List<GPSLog>
+    }
+
+    interface TransactionDAO {
+        ~findByUserId(userId: int): List<AccountTransaction>
+        ~findByUserIdAndMonth(userId: int, year: int, month: int): List<AccountTransaction>
+    }
+
+    interface UserDAO {
+        ~findByEmail(email: String): Optional<User>
+        ~findByEmailAndPassword(email: String, password: String): Optional<User>
+    }
+}
+
+package "data.daoimpl" {
+    class MySQLMaintenanceDAO
+    class MySQLReportDAO
+
+    class MySQLScooterDAO {
+        -getConnection(): Connection
+    }
+
+    class MySQLStationDAO {
+        -extract(rs: ResultSet): ChargingStation
+    }
+
+    class MySQLUserDAO {
+        -extract(rs: ResultSet): User
+    }
+
+    class ScooterDAOImpl {
+        +insert(entity: Scooter): Integer
+    }
+
+    class TrackingDAOImpl {
+        +insert(entity: GPSLog): Integer
+    }
+
+    class UserDAOImpl {
+        +insert(entity: User): Integer
+    }
+
+    class ReportDAOImpl
+    class StationDAOImpl
+    class TransactionDAOImpl
+
+    MaintenanceDAO <|.. MySQLMaintenanceDAO
+    ReportDAO <|.. MySQLReportDAO
+    ScooterDAO <|.. MySQLScooterDAO
+    StationDAO <|.. MySQLStationDAO
+    UserDAO <|.. MySQLUserDAO
+}
+
+package "data.datasource" {
+    class DAOFactory {
+        ~getUserDAO(): UserDAO
+    }
+
+    class DataSource {
+        ~USER: String
+        ~PASSWORD: String
+        ~getConnection(): Connection
+    }
+
+    class MockDataStore {
+        ~getMonthlySummary(userId: int, year: int, month: int): MonthlySummary
+    }
+}
+
+package "presentation.controller" {
+    class BaseServlet {
+        #getLoggedInUserId(request: HttpServletRequest): Integer
+    }
+
+    class DashboardServlet
+    class LoginServlet
+    class LogoutServlet
+    class MaintenanceServlet
+    class MonthlyStatementServlet
+    class ProfileServlet
+    class RegisterServlet
+    class ReportServlet
+    class ScooterServlet
+
+    class StationServlet {
+        -stationService: StationService
+    }
+
+    class TrackingServlet
+
+    BaseServlet <|-- DashboardServlet
+    BaseServlet <|-- LoginServlet
+    BaseServlet <|-- LogoutServlet
+    BaseServlet <|-- MaintenanceServlet
+    BaseServlet <|-- MonthlyStatementServlet
+    BaseServlet <|-- ProfileServlet
+    BaseServlet <|-- RegisterServlet
+    BaseServlet <|-- ReportServlet
+    BaseServlet <|-- ScooterServlet
+    BaseServlet <|-- StationServlet
+    BaseServlet <|-- TrackingServlet
+}
+
+package "presentation.filter" {
+    class AuthFilter
+    class RoleFilter
+}
+
+package "util" {
+    class Constants {
+        ~SESSION_USER_ID: String
+        ~SESSION_USER_ROLE: String
+        ~SESSION_USER_NAME: String
+        ~APP_TITLE: String
+    }
+
+    class SessionUtils {
+        ~logout(request: HttpServletRequest): void
+    }
+
+    class ValidationUtils
+}
+
+package "group10.finalproject" {
+    class JakartaRestConfiguration
+}
+
+package "group10.finalproject.resources" {
+    class JakartaEE8Resource
+}
+
+' ===== Dependencies =====
+AuthService --> User : uses
+MaintenanceService --> MaintenanceAlert : uses
+MaintenanceService --> MaintenanceTask : uses
+ReportService --> ActivityCredit : uses
+ReportService --> StationReport : uses
+ReportService --> MonthlySummary : uses
+ScooterService --> Scooter : uses
+StationService --> ChargingStation : uses
+StationService --> StationReport : uses
+TrackingService --> GPSLog : uses
+UserService --> User : uses
+
+AuthServiceImpl --> User : uses
+BillingServiceImpl --> AccountCalculationStrategy : uses
+BillingServiceImpl --> AccountContext : uses
+ScooterServiceImpl --> Scooter : uses
+
+MaintenanceDAO --> MaintenanceAlert : uses
+MaintenanceDAO --> MaintenanceTask : uses
+ReportDAO --> ActivityCredit : uses
+ReportDAO --> StationReport : uses
+ReportDAO --> MonthlySummary : uses
+ScooterDAO --> Scooter : uses
+StationDAO --> StationReport : uses
+TrackingDAO --> GPSLog : uses
+TransactionDAO --> AccountTransaction : uses
+UserDAO --> User : uses
+
+MySQLStationDAO --> ChargingStation : uses
+MySQLUserDAO --> User : uses
+ScooterDAOImpl --> Scooter : uses
+TrackingDAOImpl --> GPSLog : uses
+UserDAOImpl --> User : uses
+
+DAOFactory --> UserDAO : uses
+MockDataStore --> MonthlySummary : uses
+
+StationServlet --> StationService : uses
+
+@enduml
