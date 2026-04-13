@@ -32,4 +32,8 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     public void resolveAlert(int alertId) throws Exception {
         DAOFactory.getMaintenanceDAO().updateAlertStatus(alertId, "RESOLVED");
     }
+
+    public void updateTaskStatus(int taskId, String status) throws Exception {
+        DAOFactory.getMaintenanceDAO().updateTaskStatus(taskId, status);
+    }
 }

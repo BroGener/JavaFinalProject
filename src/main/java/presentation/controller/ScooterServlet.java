@@ -59,7 +59,7 @@ public class ScooterServlet extends BaseServlet {
                 double sponsorCredit = new SponsorCreditStrategy().calculate(ctx);
 
                 // 
-                userDebit = Math.round(userDebit * 100.0) / 100.0;
+                userDebit = Math.round(userDebit ) ;
 
                 // userId
                 Integer userId = (Integer) request.getSession().getAttribute(

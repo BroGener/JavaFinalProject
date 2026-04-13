@@ -17,5 +17,7 @@ public interface MaintenanceService {
     void createTask(MaintenanceTask task) throws Exception;
 
     void resolveAlert(int alertId) throws Exception;
-    
+
+    void updateTaskStatus(int taskId, String status) throws Exception;
+
 }
