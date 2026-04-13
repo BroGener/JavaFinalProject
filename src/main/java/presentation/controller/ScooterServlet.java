@@ -50,7 +50,7 @@ public class ScooterServlet extends BaseServlet {
                 Long startTime = (Long) request.getSession().getAttribute(
                         "rideStart_" + scooterId);
                 double minutesUsed = startTime != null
-                        ? (System.currentTimeMillis() - startTime)  : 5.0;
+                        ? (System.currentTimeMillis() - startTime) : 5.0;
 
                 // Strategy 
                 AccountContext ctx = new AccountContext(0, minutesUsed, 0);
@@ -134,7 +134,9 @@ public class ScooterServlet extends BaseServlet {
                 "yyyyMMddHHmmss").format(new java.util.Date());
         try {
             Scooter s = new Scooter();
-            s.setSponsorUserId(1); // TODO: get from session
+            Integer sponsorId = (Integer) request.getSession().getAttribute(
+                    "userId");
+            s.setSponsorUserId(sponsorId);
 
             s.setVehicleNumber(vehicleNumber);
             s.setMake(request.getParameter("make"));
