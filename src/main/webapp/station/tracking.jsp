@@ -43,10 +43,14 @@
     <p><strong>Nearest station:</strong> ${latest.nearestStationId}</p>
 </div>
 <h2>History</h2>
+
 <table>
     <tr><th>Log ID</th><th>Scooter</th><th>Latitude</th><th>Longitude</th><th>In Transit</th></tr>
-    <% List<GPSLog> history = (List<GPSLog>) request.getAttribute("history");
-       for (GPSLog log : history) { %>
+   <%
+    List<GPSLog> history = (List<GPSLog>) request.getAttribute("history");
+    if (history != null) {
+        for (GPSLog log : history) {
+%>
     <tr>
         <td><%= log.getLogId() %></td>
         <td><%= log.getScooterId() %></td>
@@ -54,7 +58,10 @@
         <td><%= log.getLongitude() %></td>
         <td><%= log.isInTransit() %></td>
     </tr>
-    <% } %>
+    <%
+        }
+    }
+%>
 </table>
 </body>
 </html>
