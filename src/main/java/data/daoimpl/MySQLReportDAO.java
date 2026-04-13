@@ -36,15 +36,51 @@ public class MySQLReportDAO implements data.dao.ReportDAO {
         return list;
     }
 
-    @Override
-    public MonthlySummary getMonthlySummary(int userId, int year, int month) throws Exception {
-        // placeholder - needs account_transactions table
-        return new MonthlySummary(userId, year, month, 0, 0.0, 0.0);
-    }
+@Override
+public MonthlySummary getMonthlySummary(int userId, int year, int month) throws Exception {
+    String sql = "SELECT COUNT(*) AS tripCount, " +
+                 "SUM(CASE WHEN transaction_type='DEBIT' THEN amount ELSE 0 END) AS totalAmount " +
+                 "FROM account_transactions " +
+                 "WHERE user_id=? AND YEAR(created_at)=? AND MONTH(created_at)=?";
+    try (Connection con = DataSource.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setInt(2, year);
+        ps.setInt(3, month);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return new MonthlySummary(
+                userId, year, month,
+                rs.getInt("tripCount"),
+                0.0,
+                rs.getDouble("totalAmount")
+            );
+        }
+    } catch (Exception e) { e.printStackTrace(); }
+    return new MonthlySummary(userId, year, month, 0, 0.0, 0.0);
+}
 
-    @Override
-    public List<ActivityCredit> getCreditsByActivity(int userId, int year, int month) throws Exception {
-        // placeholder - needs account_transactions table
-        return new ArrayList<>();
-    }
+@Override
+public List<ActivityCredit> getCreditsByActivity(int userId, int year, int month) throws Exception {
+    List<ActivityCredit> list = new ArrayList<>();
+    String sql = "SELECT activity_name, SUM(amount) AS total " +
+                 "FROM account_transactions " +
+                 "WHERE user_id=? AND transaction_type='CREDIT' " +
+                 "AND YEAR(created_at)=? AND MONTH(created_at)=? " +
+                 "GROUP BY activity_name";
+    try (Connection con = DataSource.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, userId);
+        ps.setInt(2, year);
+        ps.setInt(3, month);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(new ActivityCredit(
+                rs.getString("activity_name"),
+                rs.getDouble("total")
+            ));
+        }
+    } catch (Exception e) { e.printStackTrace(); }
+    return list;
+}
 }
