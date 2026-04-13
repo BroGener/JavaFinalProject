@@ -15,8 +15,12 @@ public class TrackingServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            request.setAttribute("latest", trackingService.getLatestLocation(1).orElse(null));
-            request.setAttribute("history", trackingService.getLocationHistory(1));
+            Integer userId = (Integer) request.getSession().getAttribute("userId");
+            int scooterId = userId;
+            trackingService.simulateAndSave(scooterId);
+            request.setAttribute("latest", trackingService.getLatestLocation(scooterId).orElse(null));
+            request.setAttribute("history", trackingService.getLocationHistory(scooterId));
+            
             request.getRequestDispatcher("/station/tracking.jsp").forward(request, response);
         } catch (Exception e) {
             throw new ServletException(e);
